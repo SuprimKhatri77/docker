@@ -1,0 +1,21 @@
+services:
+  server:
+    build:
+      context: ./server
+    environment:
+      PORT: ${SERVER_PORT}
+      DATABASE_URL: ${DATABASE_URL}
+    ports:
+      - "${SERVER_PORT}:${SERVER_PORT}"
+
+  client:
+    build:
+      context: ./client
+      args:
+        NEXT_PUBLIC_API_URL: ${API_URL}
+    environment:
+      NEXT_PUBLIC_API_URL: ${API_URL}
+    depends_on:
+      - server
+    ports:
+      - "${CLIENT_PORT}:${CLIENT_PORT}"
