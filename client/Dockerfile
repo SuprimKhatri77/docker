@@ -1,4 +1,4 @@
-FROM oven/bun:1-alpine
+FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
@@ -8,13 +8,15 @@ ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN apk add --no-cache libc6-compat
 
 COPY package*.json bun.lock ./
-
 RUN bun install
 
 COPY . .
-
 RUN bun run build
 
-EXPOSE 3000
+FROM nginx:alpine
 
-CMD ["bun", "run", "start"]
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/out /usr/share/nginx/html  
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
